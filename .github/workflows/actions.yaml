@@ -1,0 +1,57 @@
+name: Update My Rules Dat
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  run-scripts-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Run setup script
+        run: |
+          chmod +x ./scripts/setup.sh
+          ./scripts/setup.sh
+
+      - name: Run transform script
+        run: python ./scripts/transform.py
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: weekly-release-${{ github.run_number }}
+          release_name: Weekly Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Upload all.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: all.yaml
+          asset_name: all.yaml
+          asset_content_type: text/yaml
+
+      - name: Upload reward.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: reward.yaml
+          asset_name: reward.yaml
+          asset_content_type: text/yaml
