@@ -63,3 +63,13 @@ jobs:
           asset_path: reward.yaml
           asset_name: reward.yaml
           asset_content_type: text/yaml
+      
+      - name: Upload fz.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: fz.yaml
+          asset_name: fz.yaml
+          asset_content_type: text/yaml
